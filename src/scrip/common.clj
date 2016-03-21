@@ -3,8 +3,16 @@
             [pandect.algo.sha1 :refer [sha1]]
             [org.httpkit.client :as http]))
 
+(def default-config
+  {:port 8008
+   :target {:scheme :http
+            :server-name "example.com"}
+   :dir "./cache/"
+   :default-expiry 8640000})
+
 (def config
-  (read-string (slurp "conf.edn")))
+  (merge default-config
+         (read-string (slurp "conf.edn"))))
 
 (defn- req->front-matter [req]
   (merge {:expires-at (+ (config :default-expiry)
