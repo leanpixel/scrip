@@ -18,7 +18,8 @@
     resp))
 
 (defn app [req]
-  (let [req (merge req (config :target))]
+  (let [req (merge req {:scheme (config :target-scheme)
+                        :server-name (config :target-server)})]
     (or (from-cache req)
         (from-source req))))
 

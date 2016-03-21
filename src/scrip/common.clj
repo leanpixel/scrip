@@ -5,8 +5,8 @@
 
 (def default-config
   {:port 8008
-   :target {:scheme :http
-            :server-name "example.com"}
+   :target-scheme :http
+   :target-server "example.com"
    :dir "./cache/"
    :default-expiry 8640000})
 
