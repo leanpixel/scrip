@@ -37,10 +37,11 @@
 
 (defn store! [req resp]
   (println "storing " (req->url req))
-  (let [f (io/file (config :dir) (req->cache-key req))]
-    (with-open [wrtr (io/writer f)]
-      (.write wrtr (str (req->front-matter req) "\n"))
-      (.write wrtr (str resp)))))
+  (when (= 200 (resp :status))
+    (let [f (io/file (config :dir) (req->cache-key req))]
+      (with-open [wrtr (io/writer f)]
+        (.write wrtr (str (req->front-matter req) "\n"))
+        (.write wrtr (str resp))))))
 
 (defn- stringify-headers [req]
   (assoc req :headers (reduce (fn [m [k v]] (assoc m (name k) v)) {} (req :headers))))
