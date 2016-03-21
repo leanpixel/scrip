@@ -52,4 +52,5 @@
                       :body (req :body)})
       (select-keys [:body :headers :status])
       (stringify-headers)
-      (dissoc :headers)))
+      (dissoc :headers) ; TODO should not have to remove headers
+      ))
