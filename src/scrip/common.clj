@@ -1,7 +1,8 @@
 (ns scrip.common
   (:require [clojure.java.io :as io]
             [pandect.algo.sha1 :refer [sha1]]
-            [org.httpkit.client :as http]))
+            [org.httpkit.client :as http]
+            [environ.core :refer [env]]))
 
 (def default-config
   {:port 8008
@@ -12,7 +13,11 @@
 
 (def config
   (merge default-config
-         (read-string (slurp "conf.edn"))))
+         (-> env
+             (select-keys (keys default-config))
+             (update :target-scheme keyword)
+             (update :default-expiry #(Long. %))
+             (update :port #(Integer. %)))))
 
 (defn- req->front-matter [req]
   (merge {:expires-at (+ (config :default-expiry)
