@@ -17,3 +17,6 @@
 (defn stop! []
   (stop-server!)
   (stop-worker!))
+
+(defn -main  []
+  (start!))
