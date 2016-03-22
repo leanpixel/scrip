@@ -9,4 +9,6 @@
   :plugins [[lein-environ "1.0.2"]]
 
   :main scrip.core
+
+  :min-lein-version "2.0.0"
 )
