@@ -1,4 +1,5 @@
 (ns scrip.core
+  (:gen-class)
   (:require [scrip.server :refer [start-server! stop-server!]]
             [scrip.worker :refer [start-worker! stop-worker!]]))
 
