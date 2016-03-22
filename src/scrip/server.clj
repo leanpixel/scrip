@@ -1,15 +1,11 @@
 (ns scrip.server
   (:require [clojure.java.io :as io]
             [org.httpkit.server :refer [run-server]]
-            [scrip.common :refer [config req->cache-key store! fetch!]]))
+            [scrip.common :refer [config store! fetch! read!]]))
 
 (defn- from-cache [req]
   (println "from-cache")
-  (let [f (io/file (config :dir) (req->cache-key req))]
-    (when (.exists f)
-      (with-open [r (io/reader f)]
-        (.readLine r) ; skip first line
-        (read-string (.readLine r))))))
+  (read! req))
 
 (defn- from-source [req]
   (println "from-source")

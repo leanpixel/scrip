@@ -4,7 +4,7 @@
 
 (defn update-cache []
   (println "updating cache")
-  (let [dir (io/file (config :dir))
+  (let [dir (io/file (config :dir) "./meta/")
         files (rest (file-seq dir))]
     (doseq [f files]
       (let [frontmatter (read-string (.readLine (io/reader f)))

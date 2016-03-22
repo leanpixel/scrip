@@ -19,6 +19,13 @@
              (update :default-expiry #(Long. %))
              (update :port #(Integer. %)))))
 
+(defn- create-dirs! []
+  (.mkdir (io/file (config :dir)))
+  (.mkdir (io/file (config :dir) "./meta/"))
+  (.mkdir (io/file (config :dir) "./body/")))
+
+(create-dirs!)
+
 (defn- req->front-matter [req]
   (merge {:expires-at (+ (config :default-expiry)
                          (.getTime (new java.util.Date)))}
@@ -38,10 +45,23 @@
 (defn store! [req resp]
   (println "storing " (req->url req))
   (when (= 200 (resp :status))
-    (let [f (io/file (config :dir) (req->cache-key req))]
-      (with-open [wrtr (io/writer f)]
+    (let [f1 (io/file (config :dir) "./meta/" (req->cache-key req))
+          f2 (io/file (config :dir) "./body/" (req->cache-key req))]
+      (with-open [wrtr (io/writer f1)]
         (.write wrtr (str (req->front-matter req) "\n"))
-        (.write wrtr (str resp))))))
+        (.write wrtr (str (dissoc resp :body) "\n")))
+      (with-open [wrtr (io/output-stream f2)]
+        (.write wrtr (if (string? (resp :body))
+                       (.getBytes (resp :body))
+                       (.bytes (resp :body))))))))
+
+(defn read! [req]
+  (let [f1 (io/file (config :dir) "./meta/" (req->cache-key req))
+        f2 (io/file (config :dir) "./body/" (req->cache-key req))]
+    (when (.exists f1)
+      (let [m (with-open [r (io/reader f1)]
+                (read-string (nth (line-seq r) 1)))]
+        (merge m {:body (io/input-stream f2)})))))
 
 (defn- stringify-headers [req]
   (assoc req :headers (reduce (fn [m [k v]] (assoc m (name k) v)) {} (req :headers))))
@@ -52,6 +72,5 @@
                       :method (req :request-method)
                       :body (req :body)})
       (select-keys [:body :headers :status])
-      (stringify-headers)
-      (dissoc :headers) ; TODO should not have to remove headers
-      ))
+      (update-in [:headers] select-keys [:content-type])
+      (stringify-headers)))
