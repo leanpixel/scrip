@@ -14,8 +14,8 @@
     resp))
 
 (defn app [req]
-  (let [req (merge req {:scheme (config :target-scheme)
-                        :server-name (config :target-server)})]
+  (let [req (merge req {:scheme ((config) :target-scheme)
+                        :server-name ((config) :target-server)})]
     (or (from-cache req)
         (from-source req))))
 
@@ -27,6 +27,6 @@
 
 (defn start-server! []
   (stop-server!)
-  (reset! server (run-server #'app {:port (config :port)})))
+  (reset! server (run-server #'app {:port ((config) :port)})))
 
 

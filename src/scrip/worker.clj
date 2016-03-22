@@ -1,10 +1,11 @@
 (ns scrip.worker
   (:require [clojure.java.io :as io]
-            [scrip.common :refer [config req->url store! fetch!]]))
+            [scrip.common :refer [config req->url store! fetch! create-dirs!]]))
 
 (defn update-cache []
   (println "updating cache")
-  (let [dir (io/file (config :dir) "./meta/")
+  (create-dirs!)
+  (let [dir (io/file ((config) :dir) "./meta/")
         files (rest (file-seq dir))]
     (doseq [f files]
       (let [frontmatter (read-string (.readLine (io/reader f)))
