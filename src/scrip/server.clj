@@ -13,11 +13,17 @@
     (store! req resp)
     resp))
 
+(defn should-purge? [req]
+  (or (= "no-cache" (get-in req [:headers "pragma"]))
+      (= "no-cache" (get-in req [:headers "cache-control"]))))
+
 (defn app [req]
   (let [req (merge req {:scheme ((config) :target-scheme)
                         :server-name ((config) :target-server)})]
-    (or (from-cache req)
-        (from-source req))))
+    (if (should-purge? req)
+      (from-source req)
+      (or (from-cache req)
+          (from-source req)))))
 
 (defonce server (atom nil))
 
